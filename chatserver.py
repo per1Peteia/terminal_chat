@@ -23,12 +23,13 @@ def run(port):
         for skt in ready_to_read:
             if skt is server_socket:
                 client_socket, addrinfo = server_socket.accept()
+                # add client socket to selectable set
                 potential_readers.add(client_socket)
+                # assign a fresh buffer to the client socket
                 packet_bufs[addrinfo[1]] = b''
             else:
-                data = skt.recv(1024)
-
-                print(addrinfo, len(data), "bytes:", repr(data))
+                # TODO if client socket is readable, recv data
+                pass
 
 
 def usage():

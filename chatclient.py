@@ -1,5 +1,6 @@
 from chatui import init_windows, read_command, print_message, end_windows
 import sys
+import socket
 
 
 def usage():
@@ -16,7 +17,8 @@ def main(argv):
         usage()
         return 1
 
-    run(nick, host, port)
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
 
 
 if __name__ == "__main__":
