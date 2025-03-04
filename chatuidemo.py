@@ -1,16 +1,18 @@
 import threading
 import time
 
-from chatui import init_windows, read_command, print_message, end_windows
-#from chatuicurses import init_windows, read_command, print_message, end_windows
+from chat_ui import init_windows, read_command, print_message, end_windows
+# from chatuicurses import init_windows, read_command, print_message, end_windows
+
 
 def runner():
     count = 0
 
     while True:
-        time.sleep(2)
+        time.sleep(1)
         print_message(f"*** Runner count: {count}")
         count += 1
+
 
 init_windows()
 
