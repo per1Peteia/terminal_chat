@@ -29,4 +29,4 @@ I did not try to encapsulate socket states and operations with object-oriented a
     - multiple network buffers for clients
     - real-time message broadcasting
    
-## contributing
+## Contributing
