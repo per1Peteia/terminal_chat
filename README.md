@@ -28,4 +28,5 @@ I did not try to encapsulate socket states and operations with object-oriented a
     - non-blocking sockets using select module
     - multiple network buffers for clients
     - real-time message broadcasting
-    
+   
+## contributing
