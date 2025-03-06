@@ -3,19 +3,22 @@ import json
 PACKET_LENGTH_SIZE = 2
 
 
-# when client connects to server, hello packet gets sent to associate connection with nick
-def build_hello_packet(nick_name):
-    data = {'type': 'hello', 'nick': nick_name}
+def encode_packet(data):
     payload = json.dumps(data).encode()
     packet_len = len(payload)
     packet_len_bytes = packet_len.to_bytes(PACKET_LENGTH_SIZE, 'big')
-    hello_packet = packet_len_bytes + payload
-    return hello_packet
+    packet = packet_len_bytes + payload
+    return packet
+
+
+# when client connects to server, hello packet gets sent to associate connection with nick
+def build_hello_packet(nick_name):
+    data = {'type': 'hello', 'nick': nick_name}
+    return encode_packet(data)
 
 
 # this function handles socket buffers packet by packet and only returns complete packets
 def process_socket_buffer(buffer_source, socket=None, is_dict=False):
-    # get the socket port to map it to the buffer
     if is_dict:
         if socket is None:
             raise ValueError(
@@ -40,24 +43,36 @@ def process_socket_buffer(buffer_source, socket=None, is_dict=False):
     else:
         return packets, buf
 
+
 # this function decodes the payload and loads it into dict
-
-
 def handle_packet(packet):
     return json.loads(packet.decode())
 
 
-def broadcast_connect(nick_name, all_connected_sockets, server_socket):
+def broadcast_connect(nick_name, all_connected_sockets, client_nicknames):
     data = {'type': 'join', 'nick': nick_name}
-    payload = json.dumps(data).encode()
-    packet_len = len(payload)
-    packet_len_bytes = packet_len.to_bytes(PACKET_LENGTH_SIZE, 'big')
-    packet = packet_len_bytes + payload
-
+    packet = encode_packet(data)
     for sock in all_connected_sockets:
-        if sock != server_socket:
+        if sock in client_nicknames:
             sock.sendall(packet)
 
 
-def broadcast_disconnect():
-    pass
+def broadcast_disconnect(nick_name, all_connected_sockets, client_nicknames):
+    data = {'type': 'leave', 'nick': nick_name}
+    packet = encode_packet(data)
+    for sock in all_connected_sockets:
+        if sock in client_nicknames:
+            sock.sendall(packet)
+
+
+def send_message(client_socket, payload):
+    data = {'type': 'chat', 'message': payload}
+    client_socket.sendall(encode_packet(data))
+
+
+def broadcast_message(nick_name, payload, all_connected_sockets, client_nicknames):
+    data = {'type': 'chat', 'nick': nick_name, 'message': payload}
+    packet = encode_packet(data)
+    for sock in all_connected_sockets:
+        if sock in client_nicknames:
+            sock.sendall(packet)

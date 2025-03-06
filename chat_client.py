@@ -13,19 +13,27 @@ def recv_runner(sock):
     buf = b''
 
     while True:
-        data = sock.recv(4096)
-        buf = buf + data
-        packets, buf = utils.process_socket_buffer(buf)
+        try:
+            data = sock.recv(10)
+            if data == b'':
+                break
+            buf = buf + data
+            packets, buf = utils.process_socket_buffer(buf)
 
-        for packet in packets:
-            # handle complete packets according to type
-            payload = utils.handle_packet(packet)
-            if payload['type'] == 'join':
-                print_message(f'*** {payload['nick']} has joined the chat')
-            else:
-                print_message(f"{payload['nick']}: {payload['message']}")
+            for packet in packets:
+                # handle complete packets according to type
+                payload = utils.handle_packet(packet)
+                if payload['type'] == 'join':
+                    print_message(f'*** {payload['nick']} has joined the chat')
+                elif payload['type'] == 'chat':
+                    print_message(f"{payload['nick']}: {payload['message']}")
+                elif payload['type'] == 'leave':
+                    print_message(f"*** {payload['nick']} has left the chat")
 
-        buf = buf
+            buf = buf
+
+        except OSError:
+            break
 
 
 def main(argv):
@@ -55,9 +63,11 @@ def main(argv):
     while True:
         cmd = read_command(f'{nick}> ')
         if cmd == '/q' or cmd == '/quit':
+            client_socket.shutdown(socket.SHUT_RDWR)
             print('closing connection')
             client_socket.close()
             break
+        utils.send_message(client_socket, cmd)
 
     end_windows()
 

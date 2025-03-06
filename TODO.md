@@ -2,7 +2,7 @@
 
 ## TODO
 
-this is a chronological stepthrough of the process.
+this is a stepthrough of the process.
 
 * first i need to set up a basic client-server connectivity
     - this means:
@@ -10,24 +10,22 @@ this is a chronological stepthrough of the process.
         - [x]   OS i/o to parse commandline arguments
 
 * client-side 
-    - [] then i need to make sure the hello paket gets sent
+    - [x] then i need to make sure the hello paket gets sent
         - [x] make a build_hello_packet util
         - [x] send it to server
         - [x] write a get_next_packet() util function to recv data streams server-side
             - i opted out of te get_next_packet() architecture
             - i now use process_socket_buffer(), which will not block and
             will round-robin process other buffers when they have complete packets
-    - the provided TUI handles double-threaded I/O
-        - nature of multi-thread:
-            - every line the user types gets send to the server as chat paket
-            - every paket (chat, connect, disconnect) the client gets is shown in OUT
-        
+    - [x] the provided TUI handles double-threaded I/O
         - this is threading in a nutshell:
+        - main threat is prompting (sending messages to the server)
+        - worker threat is receiving server data (join, leave, messages)
 
         ```python
         import threading
 
-        # i need a runner function, it will be the 'target' of a spawned thread
+        # I need a runner function, it will be the 'target' of a spawned thread
         
         THREAD_COUNT = n    # how many threads maximum
         
@@ -43,14 +41,16 @@ this is a chronological stepthrough of the process.
         for t in threads:
             t.join()            # joins the existing threads to the calling (main) thread
         ```
-        
-    - client input starting with '/' has special meaning and needs to be parsed further
-        - '/q' should mean the client exits --> client sends empty bstr to server (b'')
+    
+    - sending messages will require a send_message() utility function
+        - [] the sending client needs to also print this message to it's own TUI
+    - [x] client input starting with '/' has special meaning and needs to be parsed further
+        - [x] '/q' should mean the client exits --> client sends empty bstr to server (b'')
             - this leads to the server removing the client from the select set
             - which means it will no longer have an open connection
     - packet-handling logic:
         - [x] is the same as the server-side packet handling and parsing
-        - i modified the process_socket_buffer() function to handle both:
+        - I modified the process_socket_buffer() function to handle both:
             - server multi network buffer (as a dict)
             - client single network buffer (as a bytestr)
 
@@ -61,10 +61,11 @@ this is a chronological stepthrough of the process.
     - packet-handling logic:
         - when a client connects to the server, the server needs to broadcast this to the clients
             - [x] use a broadcast_connect() function 
-        - if the server recieves a message, it needs to rebroadcast it to all the other clients
+        - if the server recieves a message from a client, it needs to rebroadcast it to all the other clients
             - the select set is the indicator for what clients are currently connected
             - [] use a broadcast_message() function
         - when a new client (dis-)connects the server broadcasts that to all clients as well
-            - [] ise a broadcast_disconnect() function
+            - [x] ise a broadcast_disconnect() function
+            - [] this dc broadcast needs to be represented in the client-side TUI
 
 

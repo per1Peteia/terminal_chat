@@ -29,13 +29,14 @@ def run(port):
                 # add client socket to select set
                 potential_readers.add(client_socket)
                 # assign a buffer to the client socket
-                socket_bufs[sock] = b''
+                socket_bufs[client_socket] = b''
             else:
                 data = sock.recv(4096)
-                # if data == b'':
-                #     # disconnect logic
-                #     # TODO broadcast disconnected message
-                #     pass
+                if data == b'':
+                    potential_readers.remove(sock)
+                    utils.broadcast_disconnect(
+                        client_nicknames[sock], potential_readers, client_nicknames)
+                    continue
 
                 socket_bufs[sock] = socket_bufs.get(sock, b'') + data
 
@@ -51,9 +52,10 @@ def run(port):
                         client_nicknames[sock] = payload['nick']
                         # broadcast connection to all connected clients
                         utils.broadcast_connect(
-                            client_nicknames[sock], ready_to_read, sock)
-                    elif payload['type'] == 'message':
-                        pass
+                            client_nicknames[sock], potential_readers, client_nicknames)
+                    elif payload['type'] == 'chat':
+                        utils.broadcast_message(
+                            client_nicknames[sock], payload['message'], potential_readers, client_nicknames)
 
 
 def usage():
