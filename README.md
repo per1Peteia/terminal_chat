@@ -6,14 +6,14 @@ a custom TCP/IP-based protocol with multi-client-connectivity and server for a c
 
 ## learning goals
 
-I wanted to learn basic concepts of network programming:
+* I wanted to learn basic concepts of network programming:
 
     * ISO/OSI, endianess+bitwise operations, addressing/routing, ARP, NAT etc.
     * but especially the TCP/IP layer
     * socket programming (in python, for starters)
     * concurrency and buffer management in a networked application
 
-I did not try to encapsulate socket states and operations with object-oriented approaches and just went for utility functions to do the job. 
+* I did not try to encapsulate socket states and operations with object-oriented approaches and just went for utility functions to do the job. 
 
 ## properties
 
@@ -29,4 +29,3 @@ I did not try to encapsulate socket states and operations with object-oriented a
     - multiple network buffers for clients
     - real-time message broadcasting
    
-## Contributing
